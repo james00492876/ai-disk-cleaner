@@ -299,7 +299,7 @@ ${results.map(r => `- ${r.path}: ${formatBytes(r.size_bytes)}`).join("\n")}
                 <div className="w-full bg-slate-200 rounded-full h-2 mb-1">
                   <div 
                     className="bg-blue-600 h-2 rounded-full" 
-                    style={{ width: \`\${((disk.total_space - disk.available_space) / disk.total_space) * 100}%\` }}
+                    style={{ width: `${((disk.total_space - disk.available_space) / disk.total_space) * 100}%` }}
                   ></div>
                 </div>
                 <div className="flex justify-between text-xs text-slate-600">
