@@ -94,12 +94,25 @@ function App() {
   const [aiAdvice, setAiAdvice] = useState<string>("");
   const [isAiThinking, setIsAiThinking] = useState(false);
   
-  const [llmConfig, setLlmConfig] = useState({
-    baseUrl: "https://api.openai.com/v1",
-    apiKey: "",
-    model: "gpt-3.5-turbo",
+  const [llmConfig, setLlmConfig] = useState(() => {
+    const saved = localStorage.getItem("llmConfig");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return {
+      baseUrl: "https://api.openai.com/v1",
+      apiKey: "",
+      model: "gpt-3.5-turbo",
+    };
   });
   const [showSettings, setShowSettings] = useState(false);
+
+  // 监听 llmConfig 变化，自动保存到本地
+  useEffect(() => {
+    localStorage.setItem("llmConfig", JSON.stringify(llmConfig));
+  }, [llmConfig]);
 
   useEffect(() => {
     async function init() {
@@ -187,7 +200,8 @@ function App() {
 
   const getAIAdvice = async () => {
     if (!llmConfig.apiKey) {
-      alert("请先在右上角设置 LLM API Key");
+      setShowSettings(true);
+      setStatusMessage("请先在上方设置你的 LLM API Key，然后再生成报告！");
       return;
     }
     setIsAiThinking(true);
@@ -389,7 +403,11 @@ ${results.map(r => `- ${r.path}: ${formatBytes(r.size_bytes)}`).join("\n")}
             <button 
               onClick={getAIAdvice}
               disabled={isAiThinking || results.length === 0}
-              className="text-sm px-4 py-1.5 bg-purple-100 text-purple-700 hover:bg-purple-200 rounded-full font-medium transition disabled:opacity-50"
+              className={`text-sm px-4 py-1.5 rounded-full font-medium transition disabled:opacity-50 ${
+                scanStatus === "done" && !aiAdvice && !isAiThinking 
+                  ? "bg-purple-600 text-white hover:bg-purple-700 animate-pulse shadow-md shadow-purple-200" 
+                  : "bg-purple-100 text-purple-700 hover:bg-purple-200"
+              }`}
             >
               {isAiThinking ? "分析中..." : "生成分析报告"}
             </button>
